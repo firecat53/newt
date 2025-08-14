@@ -35,6 +35,9 @@ jobs:
               with:
                   go-version: 1.24
 
+            - name: Install Nix
+              uses: DeterminateSystems/nix-installer-action@main
+
             - name: Update version in main.go
               run: |
                   TAG=${{ env.TAG }}
@@ -44,6 +47,32 @@ jobs:
                   else
                     echo "main.go not found"
                   fi
+
+            - name: Update version in flake.nix
+              run: |
+                  TAG=${{ env.TAG }}
+                  # Update version in flake.nix
+                  sed -i 's/version = ".*";/version = "'"$TAG"'";/' flake.nix
+                  echo "Updated flake.nix version to $TAG"
+
+            - name: Update vendorHash in flake.nix
+              run: |
+                  # Get the new vendorHash
+                  NEW_VENDOR_HASH=$(nix build --dry-run 2>&1 | grep -o 'sha256-[a-zA-Z0-9+/=]*' | head -1)
+                  if [ -n "$NEW_VENDOR_HASH" ]; then
+                    sed -i 's/vendorHash = "sha256-[^"]*";/vendorHash = "'"$NEW_VENDOR_HASH"'";/' flake.nix
+                    echo "Updated flake.nix vendorHash to $NEW_VENDOR_HASH"
+                  else
+                    echo "Warning: Could not determine new vendorHash"
+                  fi
+
+            - name: Commit and push flake.nix changes
+              run: |
+                  git config --local user.email "action@github.com"
+                  git config --local user.name "GitHub Action"
+                  git add flake.nix
+                  git commit -m "Update flake.nix for release ${{ env.TAG }}" || echo "No changes to commit"
+                  git push origin HEAD:${{ github.ref_name }}
 
             - name: Build and push Docker images
               run: |
