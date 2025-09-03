@@ -24,7 +24,7 @@
           pkgs = pkgsFor system;
 
           # Update version when releasing
-          version = "1.4.2";
+          version = "1.4.4";
 
           # Update the version in a new source tree
           srcWithReplacedVersion = pkgs.runCommand "newt-src-with-version" { } ''
@@ -40,7 +40,7 @@
             pname = "pangolin-newt";
             version = version;
             src = srcWithReplacedVersion;
-            vendorHash = "sha256-PENsCO2yFxLVZNPgx2OP+gWVNfjJAfXkwWS7tzlm490=";
+            vendorHash = "sha256-XYj2hMsK7Gfrk25bRz/ooDkrXmuUdBQSF/ojF7OTQ4I=";
             preBuild = ''
               export GOTOOLCHAIN=auto
             '';
