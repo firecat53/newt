@@ -41,6 +41,12 @@
             version = version;
             src = srcWithReplacedVersion;
             vendorHash = "sha256-PENsCO2yFxLVZNPgx2OP+gWVNfjJAfXkwWS7tzlm490=";
+            preBuild = ''
+              export GOTOOLCHAIN=auto
+            '';
+            patchPhase = ''
+              sed -i 's/^go 1.25$/go 1.24/g' go.mod
+            '';
             meta = with pkgs.lib; {
               description = "A tunneling client for Pangolin";
               homepage = "https://github.com/fosrl/newt";
